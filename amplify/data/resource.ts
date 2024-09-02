@@ -1,4 +1,4 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+//import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -6,7 +6,7 @@ adding a new "isDone" field as a boolean. The authorization rule below
 specifies that any unauthenticated user can "create", "read", "update", 
 and "delete" any "Todo" records.
 =========================================================================*/
-const schema = a.schema({
+/*const schema = a.schema({
   Todo: a
     .model({
       content: a.string(),
@@ -21,7 +21,7 @@ export const data = defineData({
   authorizationModes: {
     defaultAuthorizationMode: 'iam',
   },
-});
+});*/
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a
@@ -51,3 +51,30 @@ Fetch records from the database and use them in your frontend component.
 // const { data: todos } = await client.models.Todo.list()
 
 // return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
+
+import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { postConfirmation } from "../auth/post-confirmation/resource";
+
+const schema = a
+  .schema({
+    UserProfile: a
+      .model({
+        email: a.string(),
+        profileOwner: a.string(),
+      })
+      .authorization((allow) => [
+        allow.ownerDefinedIn("profileOwner"),
+      ]),
+  })
+  .authorization((allow) => [allow.resource(postConfirmation)]);
+export type Schema = ClientSchema<typeof schema>;
+
+export const data = defineData({
+  schema,
+  authorizationModes: {
+    defaultAuthorizationMode: "apiKey",
+    apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    },
+  },
+});
